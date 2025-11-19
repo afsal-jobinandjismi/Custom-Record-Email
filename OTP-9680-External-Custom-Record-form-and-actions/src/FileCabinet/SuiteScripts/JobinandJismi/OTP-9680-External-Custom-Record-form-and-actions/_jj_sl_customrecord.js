@@ -24,19 +24,32 @@
 
 define(['N/ui/serverWidget', 'N/record', 'N/log', 'N/search'],
 
+  /**
+       * @param{serverWidget} serverWidget
+       * @param{record} record
+       * @param{search} search
+       * @param{log} log
+  */
+
+
 
   function (serverWidget, record, log, search) {
 
-    /**
-    * 
-    * @param {Object} scriptContext
-    * @param {ServerRequest} scriptContext.request - Incoming request
-    * @param {ServerResponse} scriptContext.response - Suitelet response
-    * @since 2015.2
-    * 
-    * creates a custom form to capture customer data including name, email, subject, and message.
-    */
 
+    /**
+     * Builds a Suitelet form to capture customer data including name, email, subject, and message.
+     * Optionally pre-populates fields with provided parameters and displays an error message if supplied.
+     *
+     * @function buildForm
+     * @param {string} [errorMessage] - Optional error message to display on the form.
+     * @param {Object} [params] - Optional default values for the form fields.
+     * @param {string} [params.name] - Default value for the "Customer Name" field.
+     * @param {string} [params.email] - Default value for the "Customer Email" field.
+     * @param {string} [params.subject] - Default value for the "Subject" field.
+     * @param {string} [params.message] - Default value for the "Message" field.
+     * @returns {N/ui/serverWidget.Form} The created Suitelet form object.
+     * @throws {Error} Logs and rethrows any error that occurs during form creation.
+     */
 
     function buildForm(errorMessage, params) {
       try {
@@ -91,14 +104,13 @@ define(['N/ui/serverWidget', 'N/record', 'N/log', 'N/search'],
     }
 
     /**
-    * @param {Object} scriptContext
-    * @param {ServerRequest} scriptContext.request - Incoming request
-    * @param {ServerResponse} scriptContext.response - Suitelet response
-    * @since 2015.2
-
-    * check for existing email to prevent duplicate entries using search.
-    */
-
+     * Checks if a customer email already exists in the custom record `customrecord_jj_customer_data`.
+     *
+     * @function emailExists
+     * @param {string} email - The customer email address to search for.
+     * @returns {boolean} True if the email exists in the record, false otherwise.
+     * @throws {Error} Logs and returns false if the search fails due to an error.
+     */
 
     function emailExists(email) {
       try {
@@ -117,13 +129,17 @@ define(['N/ui/serverWidget', 'N/record', 'N/log', 'N/search'],
     }
 
     /**
-    * @param {Object} scriptContext
-    * @param {ServerRequest} scriptContext.request - Incoming request
-    * @param {ServerResponse} scriptContext.response - Suitelet response
-    * @since 2015.2
-    * Creates a custom record to store the captured customer data.
-    */
-
+     * Creates a new enquiry record in the custom record type `customrecord_jj_customer_data`.
+     *
+     * @function createEnquiryRecord
+     * @param {Object} params - The customer enquiry details.
+     * @param {string} params.name - Customer's name.
+     * @param {string} params.email - Customer's email address.
+     * @param {string} params.subject - Subject of the enquiry.
+     * @param {string} params.message - Message content of the enquiry.
+     * @returns {void} Does not return a value; saves the record in NetSuite.
+     * @throws {Error} Logs and rethrows any error that occurs during record creation.
+     */
 
 
     function createEnquiryRecord(params) {
@@ -151,6 +167,7 @@ define(['N/ui/serverWidget', 'N/record', 'N/log', 'N/search'],
     * @param {Object} scriptContext
     * @param {ServerRequest} scriptContext.request - Incoming request
     * @param {ServerResponse} scriptContext.response - Suitelet response
+    * @throws {Error} Logs and handles any error that occurs during form submission
     * @since 2015.2
     * Handles GET and POST requests for the Suitelet and processes form submissions and prevents duplicates.
     */

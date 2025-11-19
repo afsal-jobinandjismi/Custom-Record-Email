@@ -42,15 +42,14 @@ define(['N/record', 'N/search', 'N/email', 'N/runtime', 'N/log'],
     let ADMIN_ID = -5;
 
     /**
-     * Defines the function definition that is executed after record is submitted.
-     * @param {Object} scriptContext
-     * @param {Record} scriptContext.newRecord - New record
-     * @param {Record} scriptContext.oldRecord - Old record
-     * @param {string} scriptContext.type - Trigger type; use values from the scriptContext.UserEventType enum
-     * @since 2015.2
-     * check whether a customer exist with given email id and 
+     * Searches for a customer record by email address.
+     *
+     * @function findCustomerByEmail
+     * @param {string} emailValue - The email address to search for.
+     * @returns {Object|null} The first matching customer result object containing `internalid` and `salesrep`,
+     *                        or null if no match is found or an error occurs.
+     * @throws {Error} Logs the error and returns null if the search fails.
      */
-
 
     function findCustomerByEmail(emailValue) {
       try {
@@ -69,14 +68,14 @@ define(['N/record', 'N/search', 'N/email', 'N/runtime', 'N/log'],
     }
 
     /**
-     * @param {Object} scriptContext
-     * @param {Record} scriptContext.newRecord - New record
-     * @param {Record} scriptContext.oldRecord - Old record
-     * @param {string} scriptContext.type - Trigger type; use values from the scriptContext.UserEventType enum
-     * @since 2015.2
-     * If a customer is found, link the custom record to the customer. 
+     * Links an existing enquiry record to a customer record by setting the reference field.
+     *
+     * @function linkCustomerToEnquiry
+     * @param {number|string} enquiryId - The internal ID of the enquiry record to update.
+     * @param {number|string} customerId - The internal ID of the customer record to link.
+     * @returns {void} Does not return a value; saves the updated enquiry record in NetSuite.
+     * @throws {Error} Logs any error that occurs during record loading or saving.
      */
-
 
     function linkCustomerToEnquiry(enquiryId, customerId) {
       try {
@@ -98,15 +97,16 @@ define(['N/record', 'N/search', 'N/email', 'N/runtime', 'N/log'],
     }
 
     /**
-     * @param {Object} scriptContext
-     * @param {Record} scriptContext.newRecord - New record
-     * @param {Record} scriptContext.oldRecord - Old record
-     * @param {string} scriptContext.type - Trigger type; use values from the scriptContext.UserEventType enum
-     * @since 2015.2
-     * Notify admin when a new enquiry is created.
+     * Sends an email notification to the admin when a new customer enquiry is submitted.
+     *
+     * @function notifyAdmin
+     * @param {string} name - The customer's name.
+     * @param {string} emailValue - The customer's email address.
+     * @param {string} subject - The subject of the enquiry.
+     * @param {string} message - The message content of the enquiry.
+     * @returns {void} Does not return a value; sends an email to the admin.
+     * @throws {Error} Logs any error that occurs during the email sending process.
      */
-
-
     function notifyAdmin(name, emailValue, subject, message) {
       try {
         email.send({
@@ -133,14 +133,17 @@ define(['N/record', 'N/search', 'N/email', 'N/runtime', 'N/log'],
     }
 
     /**
-     * @param {Object} scriptContext
-     * @param {Record} scriptContext.newRecord - New record
-     * @param {Record} scriptContext.oldRecord - Old record
-     * @param {string} scriptContext.type - Trigger type; use values from the scriptContext.UserEventType enum
-     * @since 2015.2
-     * Notify the sales representative when a new enquiry is linked to their customer.
+     * Sends an email notification to a sales representative when a new customer enquiry is submitted.
+     *
+     * @function notifySalesRep
+     * @param {number|string} salesRepId - The internal ID of the sales representative to notify.
+     * @param {string} name - The customer's name.
+     * @param {string} emailValue - The customer's email address.
+     * @param {string} subject - The subject of the enquiry.
+     * @param {string} message - The message content of the enquiry.
+     * @returns {void} Does not return a value; sends an email to the specified sales representative.
+     * @throws {Error} Logs any error that occurs during the email sending process.
      */
-
 
     function notifySalesRep(salesRepId, name, emailValue, subject, message) {
       try {
@@ -168,16 +171,19 @@ define(['N/record', 'N/search', 'N/email', 'N/runtime', 'N/log'],
     }
 
     /**
-     * Defines the function definition that is executed after record is submitted.
-     * @param {Object} scriptContext
-     * @param {Record} scriptContext.newRecord - New record
-     * @param {Record} scriptContext.oldRecord - Old record
-     * @param {string} scriptContext.type - Trigger type; use values from the scriptContext.UserEventType enum
-     * @since 2015.2
-     * Here we handle the afterSubmit event to process the custom record after it is created and link to customer if exist
-     * and send notifications.
+     * User Event `afterSubmit` function that runs after a new enquiry record is created.
+     * - Retrieves customer enquiry details from the newly created record.
+     * - Notifies the admin of the new enquiry.
+     * - Searches for an existing customer by email and links the enquiry to the customer if found.
+     * - Notifies the assigned sales representative if one exists.
+     *
+     * @function afterSubmit
+     * @param {Object} scriptContext - The User Event script context object.
+     * @param {string} scriptContext.type - The type of operation (e.g., CREATE, EDIT).
+     * @param {Record} scriptContext.newRecord - The newly created record object.
+     * @returns {void} Does not return a value; performs notifications and record linking.
+     * @throws {Error} Logs any error that occurs during execution.
      */
-
 
     function afterSubmit(scriptContext) {
       if (scriptContext.type !== scriptContext.UserEventType.CREATE) return;
